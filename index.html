@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0c0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="BIST">
+<title>BIST Portföy</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0c0f;--surface:#111417;--card:#161a1f;--border:#1e2530;
+  --accent:#e63946;--green:#00ff88;--red:#ff3860;--yellow:#ffd600;
+  --text:#e0e8f0;--muted:#5a6a7a;--blue:#00e5ff}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;overflow-x:hidden}
+body{padding-bottom:80px}
+header{position:sticky;top:0;z-index:100;background:#0d1117;border-bottom:1px solid var(--accent);
+  padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.h-title{font-size:18px;font-weight:700;letter-spacing:2px;
+  background:linear-gradient(90deg,var(--accent),var(--yellow));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.h-sub{font-size:11px;color:var(--muted);font-family:'Share Tech Mono',monospace}
+.h-right{text-align:right}
+.h-total{font-size:22px;font-weight:700;font-family:'Share Tech Mono',monospace;color:var(--accent)}
+.h-label{font-size:10px;color:var(--muted)}
+.tab-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border);
+  position:sticky;top:62px;z-index:99}
+.tab{flex:1;padding:10px 4px;text-align:center;font-size:11px;font-weight:600;
+  letter-spacing:1px;color:var(--muted);border-bottom:2px solid transparent;
+  cursor:pointer;transition:all .2s;text-transform:uppercase}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(230,57,70,.05)}
+.section{display:none;padding:12px}.section.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+.ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.ov-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.ov-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.ov-val{font-family:'Share Tech Mono',monospace;font-size:17px;margin-top:4px}
+.ov-sub{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);margin-top:2px}
+.pos{color:var(--green)}.neg{color:var(--red)}.neu{color:var(--muted)}
+.inp{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);font-family:'Share Tech Mono',monospace;font-size:26px;
+  padding:12px;outline:none;-webkit-appearance:none;transition:border-color .2s;text-align:center}
+.inp:focus{border-color:var(--accent)}
+.inp-label{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:6px}
+.btn{width:100%;padding:13px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,var(--accent),#900);color:#fff;
+  font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:10px}
+.sec-title{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.week-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px}
+.week-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.week-title{font-size:13px;font-weight:700;color:var(--muted)}
+.week-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.week-stat{background:var(--bg);border-radius:6px;padding:6px;text-align:center}
+.week-stat-l{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.week-stat-v{font-family:'Share Tech Mono',monospace;font-size:12px;margin-top:2px}
+canvas{width:100%;border-radius:8px;background:var(--bg)}
+.range-btns{display:flex;gap:6px;margin-bottom:10px}
+.range-btn{padding:4px 12px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-size:11px;cursor:pointer;
+  font-family:'Rajdhani',sans-serif;font-weight:700}
+.range-btn.active{border-color:var(--accent);background:rgba(230,57,70,.15);color:var(--accent)}
+.hist-row{display:flex;justify-content:space-between;align-items:center;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.hist-row:last-child{border-bottom:none}
+.hist-left{flex:1}
+.hist-date{font-size:11px;color:var(--muted)}
+.hist-val{font-family:'Share Tech Mono',monospace;font-size:15px;color:var(--accent)}
+.hist-right{text-align:right}
+.hist-ch{font-family:'Share Tech Mono',monospace;font-size:12px}
+.del-btn{background:rgba(255,56,96,.1);border:1px solid var(--red);color:var(--red);
+  border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;margin-top:4px;display:block}
+#alert{position:fixed;bottom:20px;left:16px;right:16px;z-index:999;padding:12px 16px;
+  border-radius:10px;font-size:14px;font-weight:700;display:none;
+  align-items:center;justify-content:center;text-align:center}
+#alert.ok{background:var(--green);color:#000}
+#alert.err{background:var(--red);color:#fff}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="h-title">📈 BIST PORTFÖY</div>
+    <div class="h-sub" id="last-update">Son giriş: —</div>
+  </div>
+  <div class="h-right">
+    <div class="h-label">PORTFÖY</div>
+    <div class="h-total" id="header-total">—</div>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <div class="tab active" data-tab="overview" onclick="showTab(this)">📊 Özet</div>
+  <div class="tab" data-tab="entry" onclick="showTab(this)">➕ Giriş</div>
+  <div class="tab" data-tab="chart" onclick="showTab(this)">📈 Grafik</div>
+  <div class="tab" data-tab="history" onclick="showTab(this)">📋 Geçmiş</div>
+</div>
+
+<!-- ÖZET -->
+<div id="tab-overview" class="section active">
+  <div class="ov-grid">
+    <div class="ov-card">
+      <div class="ov-label">Güncel Değer</div>
+      <div class="ov-val" id="ov-current">—</div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-label">Toplam Büyüme</div>
+      <div class="ov-val neu" id="ov-total-growth">—</div>
+      <div class="ov-sub" id="ov-total-tl">—</div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-label">Günlük</div>
+      <div class="ov-val neu" id="ov-daily">—</div>
+      <div class="ov-sub" id="ov-daily-tl">—</div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-label">Haftalık</div>
+      <div class="ov-val neu" id="ov-weekly">—</div>
+      <div class="ov-sub" id="ov-weekly-tl">—</div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-label">Aylık</div>
+      <div class="ov-val neu" id="ov-monthly">—</div>
+      <div class="ov-sub" id="ov-monthly-tl">—</div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-label">Yıllık</div>
+      <div class="ov-val neu" id="ov-yearly">—</div>
+      <div class="ov-sub" id="ov-yearly-tl">—</div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-label">En Yüksek</div>
+      <div class="ov-val" id="ov-high" style="color:var(--green)">—</div>
+      <div class="ov-sub" id="ov-high-date">—</div>
+    </div>
+    <div class="ov-card">
+      <div class="ov-label">En Düşük</div>
+      <div class="ov-val" id="ov-low" style="color:var(--red)">—</div>
+      <div class="ov-sub" id="ov-low-date">—</div>
+    </div>
+  </div>
+
+  <div class="sec-title"><span class="dot" style="background:var(--accent)"></span>HAFTALIK ÖZETLER</div>
+  <div id="weekly-summary"></div>
+</div>
+
+<!-- GİRİŞ -->
+<div id="tab-entry" class="section">
+  <div class="sec-title"><span class="dot" style="background:var(--accent)"></span>GÜNLÜK GİRİŞ</div>
+  <div class="card">
+    <label class="inp-label">PORTFÖY DEĞERİ (₺)</label>
+    <input class="inp" type="number" inputmode="decimal" step="0.01" placeholder="0.00" id="inp-val">
+    <div id="change-preview" style="text-align:center;margin-top:8px;font-family:'Share Tech Mono',monospace;font-size:14px;color:var(--muted)">Önceki girişe göre: —</div>
+    <button class="btn" onclick="saveEntry()">💾 KAYDET</button>
+  </div>
+  <div class="card" style="background:rgba(230,57,70,.04);border-color:var(--accent)">
+    <div style="font-size:13px;color:var(--accent);font-weight:700;margin-bottom:8px">ℹ️ Giriş Rehberi</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.6">
+      • Yapay zekanın yönettiği toplam portföy değerini <b style="color:var(--text)">TL</b> cinsinden girin<br>
+      • Her gün piyasa kapanışında giriş yapmanız önerilir<br>
+      • Haftalık özet otomatik oluşturulur
+    </div>
+  </div>
+</div>
+
+<!-- GRAFİK -->
+<div id="tab-chart" class="section">
+  <div class="card" style="padding:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div class="sec-title" style="margin:0;border:none;padding:0"><span class="dot" style="background:var(--accent)"></span>₺ BÜYÜME</div>
+      <div class="range-btns">
+        <button class="range-btn active" onclick="setRange(30,this)">1A</button>
+        <button class="range-btn" onclick="setRange(90,this)">3A</button>
+        <button class="range-btn" onclick="setRange(365,this)">1Y</button>
+        <button class="range-btn" onclick="setRange(0,this)">TÜM</button>
+      </div>
+    </div>
+    <canvas id="chart-main" height="200"></canvas>
+  </div>
+  <div class="card" style="padding:10px;margin-top:0">
+    <div class="sec-title" style="margin-bottom:8px"><span class="dot" style="background:var(--green)"></span>% BÜYÜME (Başlangıçtan)</div>
+    <canvas id="chart-pct" height="150"></canvas>
+  </div>
+  <div class="card" style="padding:10px;margin-top:0">
+    <div class="sec-title" style="margin-bottom:8px"><span class="dot" style="background:var(--yellow)"></span>GÜNLÜK DEĞİŞİM (%)</div>
+    <canvas id="chart-daily" height="130"></canvas>
+  </div>
+</div>
+
+<!-- GEÇMİŞ -->
+<div id="tab-history" class="section">
+  <div class="sec-title"><span class="dot" style="background:var(--yellow)"></span>TÜM GİRİŞLER</div>
+  <div class="card" id="hist-container">
+    <div style="text-align:center;color:var(--muted);padding:20px">Henüz giriş yok</div>
+  </div>
+</div>
+
+<div id="alert"><span id="alert-text"></span></div>
+
+<script>
+var entries=[];
+var chartRange=30;
+
+window.onload=function(){load();render();};
+
+function fmtTL(n){return Math.round(n).toLocaleString('tr-TR');}
+function fmtPct(n){return(n>=0?'+':'')+n.toFixed(2)+'%';}
+function cls(n){return n>0?'pos':n<0?'neg':'neu';}
+function getWeekNum(d){var s=new Date(d.getFullYear(),0,1);return Math.ceil(((d-s)/86400000+s.getDay()+1)/7);}
+
+function showTab(el){
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+  document.getElementById('tab-'+el.dataset.tab).classList.add('active');
+  if(el.dataset.tab==='chart')setTimeout(drawCharts,50);
+}
+
+// Giriş önizleme
+document.getElementById('inp-val').addEventListener('input',function(){
+  var v=parseFloat(this.value)||0;
+  if(entries.length>0&&v>0){
+    var prev=entries[entries.length-1].val;
+    var ch=(v-prev)/prev*100;
+    var diff=v-prev;
+    var el=document.getElementById('change-preview');
+    el.textContent='Önceki: ₺'+fmtTL(prev)+' → '+(ch>=0?'+':'')+ch.toFixed(2)+'% ('+(diff>=0?'+':'')+fmtTL(diff)+'₺)';
+    el.style.color=ch>=0?'var(--green)':'var(--red)';
+  }else{
+    document.getElementById('change-preview').textContent='Önceki girişe göre: —';
+    document.getElementById('change-preview').style.color='var(--muted)';
+  }
+});
+
+function saveEntry(){
+  var v=parseFloat(document.getElementById('inp-val').value);
+  if(isNaN(v)||v<=0){showAlert('err','Geçerli bir değer girin!');return;}
+  entries.push({date:new Date().toISOString(),val:v});
+  document.getElementById('inp-val').value='';
+  document.getElementById('change-preview').textContent='Önceki girişe göre: —';
+  document.getElementById('change-preview').style.color='var(--muted)';
+  save();render();
+  showAlert('ok','₺'+fmtTL(v)+' kaydedildi!');
+}
+
+function deleteEntry(i){entries.splice(i,1);save();render();showAlert('ok','Giriş silindi');}
+
+function getClosest(targetDate){
+  var result=null;
+  for(var i=0;i<entries.length;i++){if(new Date(entries[i].date)<=targetDate)result=entries[i];}
+  return result;
+}
+
+function render(){
+  if(entries.length===0){
+    document.getElementById('header-total').textContent='—';
+    document.getElementById('last-update').textContent='Son giriş: —';
+    ['ov-current','ov-total-growth','ov-total-tl','ov-daily','ov-daily-tl',
+     'ov-weekly','ov-weekly-tl','ov-monthly','ov-monthly-tl',
+     'ov-yearly','ov-yearly-tl','ov-high','ov-high-date','ov-low','ov-low-date'].forEach(function(id){
+      var el=document.getElementById(id);if(el){el.textContent='—';el.className=el.className.replace(/\bpos\b|\bneg\b/g,'');}
+    });
+    document.getElementById('weekly-summary').innerHTML='<div style="text-align:center;color:var(--muted);padding:16px;font-size:13px">Henüz giriş yok</div>';
+    document.getElementById('hist-container').innerHTML='<div style="text-align:center;color:var(--muted);padding:20px">Henüz giriş yok</div>';
+    return;
+  }
+
+  var last=entries[entries.length-1];
+  var first=entries[0];
+  var now=new Date();
+
+  document.getElementById('header-total').textContent='₺'+fmtTL(last.val);
+  document.getElementById('last-update').textContent='Son: '+new Date(last.date).toLocaleDateString('tr-TR');
+
+  // Güncel
+  var ec=document.getElementById('ov-current');ec.textContent='₺'+fmtTL(last.val);
+
+  // Toplam büyüme
+  var gp=(last.val-first.val)/first.val*100;
+  var eg=document.getElementById('ov-total-growth');eg.textContent=fmtPct(gp);eg.className='ov-val '+cls(gp);
+  document.getElementById('ov-total-tl').textContent=(last.val-first.val>=0?'+':'')+fmtTL(last.val-first.val)+'₺';
+
+  // Günlük
+  var prev=entries.length>=2?entries[entries.length-2]:null;
+  if(prev){
+    var dp=(last.val-prev.val)/prev.val*100;
+    var ed=document.getElementById('ov-daily');ed.textContent=fmtPct(dp);ed.className='ov-val '+cls(dp);
+    document.getElementById('ov-daily-tl').textContent=(last.val-prev.val>=0?'+':'')+fmtTL(last.val-prev.val)+'₺';
+  }
+
+  // Haftalık
+  var weekAgo=new Date(now);weekAgo.setDate(weekAgo.getDate()-7);
+  var wE=getClosest(weekAgo);
+  if(wE){var wp=(last.val-wE.val)/wE.val*100;var ew=document.getElementById('ov-weekly');ew.textContent=fmtPct(wp);ew.className='ov-val '+cls(wp);document.getElementById('ov-weekly-tl').textContent=(last.val-wE.val>=0?'+':'')+fmtTL(last.val-wE.val)+'₺';}
+
+  // Aylık
+  var monthAgo=new Date(now);monthAgo.setDate(monthAgo.getDate()-30);
+  var mE=getClosest(monthAgo);
+  if(mE){var mp=(last.val-mE.val)/mE.val*100;var em=document.getElementById('ov-monthly');em.textContent=fmtPct(mp);em.className='ov-val '+cls(mp);document.getElementById('ov-monthly-tl').textContent=(last.val-mE.val>=0?'+':'')+fmtTL(last.val-mE.val)+'₺';}
+
+  // Yıllık
+  var yearAgo=new Date(now);yearAgo.setFullYear(yearAgo.getFullYear()-1);
+  var yE=getClosest(yearAgo);
+  if(yE){var yp=(last.val-yE.val)/yE.val*100;var ey=document.getElementById('ov-yearly');ey.textContent=fmtPct(yp);ey.className='ov-val '+cls(yp);document.getElementById('ov-yearly-tl').textContent=(last.val-yE.val>=0?'+':'')+fmtTL(last.val-yE.val)+'₺';}
+
+  // En yüksek / en düşük
+  var high=entries.reduce(function(a,b){return b.val>a.val?b:a;});
+  var low=entries.reduce(function(a,b){return b.val<a.val?b:a;});
+  document.getElementById('ov-high').textContent='₺'+fmtTL(high.val);
+  document.getElementById('ov-high-date').textContent=new Date(high.date).toLocaleDateString('tr-TR');
+  document.getElementById('ov-low').textContent='₺'+fmtTL(low.val);
+  document.getElementById('ov-low-date').textContent=new Date(low.date).toLocaleDateString('tr-TR');
+
+  renderWeeklySummary();
+  renderHistory();
+}
+
+function renderWeeklySummary(){
+  var weeks={};
+  entries.forEach(function(e){
+    var d=new Date(e.date);var y=d.getFullYear();var w=getWeekNum(d);var key=y+'-W'+String(w).padStart(2,'0');
+    if(!weeks[key])weeks[key]={entries:[],year:y,week:w};weeks[key].entries.push(e);
+  });
+  var keys=Object.keys(weeks).sort();
+  var html='';
+  keys.slice(-8).reverse().forEach(function(key){
+    var wk=weeks[key];
+    var last=wk.entries[wk.entries.length-1];
+    var first=wk.entries[0];
+    var pct=(last.val-first.val)/first.val*100;
+    var diff=last.val-first.val;
+    var maxW=Math.max.apply(null,wk.entries.map(function(e){return e.val;}));
+    var minW=Math.min.apply(null,wk.entries.map(function(e){return e.val;}));
+    html+='<div class="week-card"><div class="week-header">';
+    html+='<div class="week-title">'+wk.year+' — Hafta '+wk.week+'</div>';
+    html+='<div style="text-align:right"><div style="font-family:\'Share Tech Mono\',monospace;font-size:15px;color:var(--accent)">₺'+fmtTL(last.val)+'</div>';
+    html+='<div class="'+cls(pct)+'" style="font-family:\'Share Tech Mono\',monospace;font-size:12px">'+fmtPct(pct)+' ('+(diff>=0?'+':'')+fmtTL(diff)+'₺)</div>';
+    html+='</div></div><div class="week-stats">';
+    html+='<div class="week-stat"><div class="week-stat-l">En Yüksek</div><div class="week-stat-v pos">₺'+fmtTL(maxW)+'</div></div>';
+    html+='<div class="week-stat"><div class="week-stat-l">En Düşük</div><div class="week-stat-v neg">₺'+fmtTL(minW)+'</div></div>';
+    html+='<div class="week-stat"><div class="week-stat-l">Giriş</div><div class="week-stat-v neu">'+wk.entries.length+' gün</div></div>';
+    html+='</div></div>';
+  });
+  document.getElementById('weekly-summary').innerHTML=html||'<div style="text-align:center;color:var(--muted);padding:16px">Henüz yeterli veri yok</div>';
+}
+
+function renderHistory(){
+  var c=document.getElementById('hist-container');
+  var reversed=entries.slice().reverse();
+  c.innerHTML=reversed.map(function(e,ri){
+    var i=entries.length-1-ri;var prev=i>0?entries[i-1]:null;
+    var d=new Date(e.date);
+    var ch=prev?((e.val-prev.val)/prev.val*100):null;
+    var diff=prev?(e.val-prev.val):null;
+    return '<div class="hist-row"><div class="hist-left">'+
+      '<div class="hist-date">'+d.toLocaleDateString('tr-TR')+' '+d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})+'</div>'+
+      '<div class="hist-val">₺'+fmtTL(e.val)+'</div>'+
+      '</div><div class="hist-right">'+
+      (ch!==null?'<div class="hist-ch '+cls(ch)+'">'+fmtPct(ch)+'</div>':'')+
+      (diff!==null?'<div class="hist-ch '+cls(diff)+'" style="font-size:11px">'+(diff>=0?'+':'')+fmtTL(diff)+'₺</div>':'')+
+      '<button class="del-btn" onclick="deleteEntry('+i+')">Sil</button>'+
+      '</div></div>';
+  }).join('')||'<div style="text-align:center;color:var(--muted);padding:20px">Henüz giriş yok</div>';
+}
+
+function setRange(r,btn){
+  chartRange=r;
+  document.querySelectorAll('.range-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  drawCharts();
+}
+
+function drawCharts(){
+  if(entries.length<2)return;
+  var data=chartRange>0?entries.slice(-chartRange):entries;
+  var dpr=window.devicePixelRatio||1;
+
+  // Ana grafik
+  var c1=document.getElementById('chart-main');
+  var ctx1=c1.getContext('2d');
+  c1.width=(c1.offsetWidth||300)*dpr;c1.height=200*dpr;ctx1.scale(dpr,dpr);
+  var W=c1.offsetWidth||300,H=200;ctx1.clearRect(0,0,W,H);
+  var vals=data.map(function(e){return e.val;});
+  var minV=Math.min.apply(null,vals)*0.995,maxV=Math.max.apply(null,vals)*1.005,range=maxV-minV||1;
+  function toY1(v){return H-15-(v-minV)/range*(H-30);}
+  function toX1(i){return 40+(i/(data.length-1||1))*(W-50);}
+  drawGrid(ctx1,W,H);
+  ctx1.fillStyle='rgba(90,106,122,.8)';ctx1.font='9px Share Tech Mono';ctx1.textAlign='right';
+  for(var g=0;g<5;g++){var v=minV+g*(maxV-minV)/4;ctx1.fillText((v/1000).toFixed(0)+'K',36,H-15-g*(H-30)/4+4);}
+  // Alan
+  ctx1.beginPath();ctx1.moveTo(toX1(0),H-15);
+  data.forEach(function(e,i){ctx1.lineTo(toX1(i),toY1(e.val));});
+  ctx1.lineTo(toX1(data.length-1),H-15);ctx1.closePath();
+  var grad=ctx1.createLinearGradient(0,0,0,H);grad.addColorStop(0,'rgba(230,57,70,.4)');grad.addColorStop(1,'rgba(230,57,70,0)');
+  ctx1.fillStyle=grad;ctx1.fill();
+  // Çizgi
+  ctx1.strokeStyle='#e63946';ctx1.lineWidth=2;ctx1.beginPath();
+  data.forEach(function(e,i){i===0?ctx1.moveTo(toX1(i),toY1(e.val)):ctx1.lineTo(toX1(i),toY1(e.val));});ctx1.stroke();
+  drawXLabels(ctx1,data,toX1,H);
+
+  // % grafik
+  var c2=document.getElementById('chart-pct');
+  var ctx2=c2.getContext('2d');
+  c2.width=(c2.offsetWidth||300)*dpr;c2.height=150*dpr;ctx2.scale(dpr,dpr);
+  var W2=c2.offsetWidth||300,H2=150;ctx2.clearRect(0,0,W2,H2);
+  var fv=data[0].val;
+  var pcts=data.map(function(e){return(e.val-fv)/fv*100;});
+  var minP=Math.min.apply(null,pcts)-0.5,maxP=Math.max.apply(null,pcts)+0.5,rP=maxP-minP||1;
+  function toYp(v){return H2-15-(v-minP)/rP*(H2-30);}
+  function toXp(i){return 40+(i/(data.length-1||1))*(W2-50);}
+  drawGrid(ctx2,W2,H2);
+  ctx2.strokeStyle='rgba(255,255,255,.15)';ctx2.lineWidth=1;ctx2.setLineDash([4,4]);
+  ctx2.beginPath();ctx2.moveTo(40,toYp(0));ctx2.lineTo(W2-10,toYp(0));ctx2.stroke();ctx2.setLineDash([]);
+  ctx2.fillStyle='rgba(90,106,122,.8)';ctx2.font='9px Share Tech Mono';ctx2.textAlign='right';
+  for(var g2=0;g2<5;g2++){ctx2.fillText((minP+g2*(maxP-minP)/4).toFixed(1)+'%',36,H2-15-g2*(H2-30)/4+4);}
+  ctx2.strokeStyle='#00ff88';ctx2.lineWidth=2;ctx2.beginPath();
+  pcts.forEach(function(v,i){i===0?ctx2.moveTo(toXp(i),toYp(v)):ctx2.lineTo(toXp(i),toYp(v));});ctx2.stroke();
+  drawXLabels(ctx2,data,toXp,H2);
+
+  // Günlük değişim grafik (bar)
+  var c3=document.getElementById('chart-daily');
+  var ctx3=c3.getContext('2d');
+  c3.width=(c3.offsetWidth||300)*dpr;c3.height=130*dpr;ctx3.scale(dpr,dpr);
+  var W3=c3.offsetWidth||300,H3=130;ctx3.clearRect(0,0,W3,H3);
+  var dailyPcts=data.map(function(e,i){return i===0?0:(e.val-data[i-1].val)/data[i-1].val*100;});
+  var maxD=Math.max(Math.abs(Math.min.apply(null,dailyPcts)),Math.abs(Math.max.apply(null,dailyPcts)))||1;
+  function toYd(v){return H3/2-v/maxD*(H3/2-10);}
+  function toXd(i){return 40+(i/(data.length-1||1))*(W3-50);}
+  drawGrid(ctx3,W3,H3);
+  ctx3.strokeStyle='rgba(255,255,255,.15)';ctx3.lineWidth=1;ctx3.setLineDash([4,4]);
+  ctx3.beginPath();ctx3.moveTo(40,H3/2);ctx3.lineTo(W3-10,H3/2);ctx3.stroke();ctx3.setLineDash([]);
+  var barW=Math.max(2,Math.floor((W3-50)/data.length-2));
+  dailyPcts.forEach(function(v,i){
+    if(i===0)return;
+    var x=toXd(i)-barW/2;var y0=H3/2;var h=Math.abs(toYd(v)-H3/2);
+    ctx3.fillStyle=v>=0?'rgba(0,255,136,.7)':'rgba(255,56,96,.7)';
+    ctx3.fillRect(x,v>=0?y0-h:y0,barW,h);
+  });
+  ctx3.fillStyle='rgba(90,106,122,.8)';ctx3.font='9px Share Tech Mono';ctx3.textAlign='right';
+  ctx3.fillText('+'+maxD.toFixed(1)+'%',36,15);ctx3.fillText('-'+maxD.toFixed(1)+'%',36,H3-5);
+  drawXLabels(ctx3,data,toXd,H3);
+}
+
+function drawGrid(ctx,W,H){ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;for(var g=0;g<5;g++){var y=15+g*(H-30)/4;ctx.beginPath();ctx.moveTo(40,y);ctx.lineTo(W-10,y);ctx.stroke();}}
+function drawXLabels(ctx,data,toX,H){ctx.fillStyle='rgba(90,106,122,.8)';ctx.font='9px Share Tech Mono';ctx.textAlign='center';var step=Math.max(1,Math.floor(data.length/5));for(var i=0;i<data.length;i+=step){var d=new Date(data[i].date);ctx.fillText(d.getDate()+'/'+(d.getMonth()+1),toX(i),H-2);}}
+
+function save(){
+  try{var d=JSON.stringify({entries:entries});
+    try{localStorage.setItem('bist_takip',d);}catch(e){}
+    try{sessionStorage.setItem('bist_takip',d);}catch(e){}
+    try{var enc=btoa(unescape(encodeURIComponent(d)));document.cookie='bist_takip='+enc+';path=/;max-age=31536000;SameSite=Strict';}catch(e){}
+  }catch(e){}
+}
+function load(){
+  try{var raw=null;
+    try{raw=localStorage.getItem('bist_takip');}catch(e){}
+    if(!raw){try{raw=sessionStorage.getItem('bist_takip');}catch(e){}}
+    if(!raw){try{var m=document.cookie.match(/bist_takip=([^;]+)/);if(m)raw=decodeURIComponent(escape(atob(m[1])));}catch(e){}}
+    if(!raw)return;var s=JSON.parse(raw);entries=s.entries||[];
+  }catch(e){}
+}
+function showAlert(type,msg){var el=document.getElementById('alert');document.getElementById('alert-text').textContent=msg;el.className=type;el.style.display='flex';setTimeout(function(){el.style.display='none';},3000);}
+</script>
+</body>
+</html>
